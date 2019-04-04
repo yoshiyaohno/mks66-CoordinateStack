@@ -2,6 +2,7 @@ import Line
 import Transform
 import Solids
 import Parse
+import DrawMats
 
 import Control.Monad.State
 import System.IO

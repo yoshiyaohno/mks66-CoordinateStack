@@ -5,6 +5,7 @@ import Line
 import Screen
 import qualified Solids as S
 import qualified Transform as T
+import DrawMats
 
 import System.Directory
 import System.IO
@@ -13,21 +14,6 @@ import Control.Monad.State
 import System.Process
 import qualified Data.Map.Strict as M
 import qualified Data.List as L
-
-type Args = [String]
-data DrawMats =
-    DrawMats { getScreen :: Screen
-             , getTransform :: T.Transform Double
-             , getEdges :: [Vect Double]
-             , getTriangles :: [S.Triangle Double]
-             }
-
-emptyDM :: DrawMats
-emptyDM = DrawMats { getScreen = emptyScreen blk (499,499)
-                   , getTransform = T.ident
-                   , getEdges = []
-                   , getTriangles = []
-                   }
 
 noArgs :: (MonadState DrawMats m, MonadIO m) => [(String, m ())]
 noArgs = [ ("ident", ident)
@@ -63,10 +49,6 @@ parse (a:b:xs) =
             case lookup a wArgs of
                 Just c1 -> (c1 $ words b) : (parse xs)
                 Nothing -> parse (b:xs)
-
-doublePts :: [a] -> [a]
-doublePts [] = []
-doublePts (x:xs) = x:x:(doublePts xs)
 
 box :: (MonadState DrawMats m) => Args -> m ()
 box args = modify $ modTriangles (++tris)
@@ -170,16 +152,3 @@ move args = modify . modTransform $ (`mappend` T.trans x y z)
 clear :: (MonadState DrawMats m) => m ()
 clear = modify . modEdges $ const []
 
-modScreen :: (Screen -> Screen) -> DrawMats -> DrawMats
-modScreen f dm = dm { getScreen = (f $ getScreen dm) }
-
-modTransform :: (T.Transform Double -> T.Transform Double) ->
-    DrawMats -> DrawMats
-modTransform f dm = dm { getTransform = (f $ getTransform dm) }
-
-modEdges :: ([Vect Double] -> [Vect Double]) -> DrawMats -> DrawMats
-modEdges f dm = dm { getEdges = (f $ getEdges dm) }
-
-modTriangles :: ([S.Triangle Double] -> [S.Triangle Double]) ->
-    DrawMats -> DrawMats
-modTriangles f dm = dm { getTriangles = (f $ getTriangles dm) }
