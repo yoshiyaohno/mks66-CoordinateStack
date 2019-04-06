@@ -7,30 +7,33 @@ import Transform
 
 type Args = [String]
 data DrawMats =
-    DrawMats { getScreen :: Screen
-             , getTransform :: Transform Double
-             , getEdges :: [Vect Double]
-             , getTriangles :: [Triangle Double]
-             }
+     DrawMats { getScreen :: Screen
+              , getTStack :: [Transform Double]
+--            , getEdges :: [Vect Double]
+--            , getTriangles :: [Triangle Double]
+              }
 
 emptyDM :: DrawMats
 emptyDM = DrawMats { getScreen = emptyScreen blk (499,499)
-                   , getTransform = ident
-                   , getEdges = []
-                   , getTriangles = []
+                   , getTStack = [ident]
+--                 , getEdges = []
+--                 , getTriangles = []
                    }
 
 modScreen :: (Screen -> Screen) -> DrawMats -> DrawMats
-modScreen f dm = dm { getScreen = (f $ getScreen dm) }
+modScreen f dm = dm { getScreen = f $ getScreen dm }
 
-modTransform :: (Transform Double -> Transform Double) ->
-    DrawMats -> DrawMats
-modTransform f dm = dm { getTransform = (f $ getTransform dm) }
+getTransform :: DrawMats -> Transform Double
+getTransform = head . getTStack
 
-modEdges :: ([Vect Double] -> [Vect Double]) -> DrawMats -> DrawMats
-modEdges f dm = dm { getEdges = (f $ getEdges dm) }
+popTransform :: DrawMats -> DrawMats
+popTransform dm = dm { getTStack = tail $ getTStack dm }
 
-modTriangles :: ([Triangle Double] -> [Triangle Double]) ->
-    DrawMats -> DrawMats
-modTriangles f dm = dm { getTriangles = (f $ getTriangles dm) }
+pushTransform :: DrawMats -> DrawMats
+pushTransform dm = dm { getTStack = (tf:tf:tfs) }
+    where (tf:tfs) = getTStack dm
+
+modTransform :: (Transform Double -> Transform Double) -> DrawMats -> DrawMats
+modTransform f dm = dm { getTStack = ((f tf):tfs) }
+    where (tf:tfs) = getTStack dm
 
