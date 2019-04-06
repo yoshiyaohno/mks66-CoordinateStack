@@ -20,6 +20,8 @@ noArgs = [ ("ident", ident)
 --       , ("apply", apply)
          , ("display", display)
 --       , ("clear", clear)
+         , ("push", push)
+         , ("pop", pop)
          ]
 
 wArgs :: (MonadState DrawMats m, MonadIO m) => [(String, Args -> m ())]
@@ -31,9 +33,9 @@ wArgs = [ ("save", save)
         , ("hermite", hermite)
         , ("bezier", bezier)
         , ("circle", circle)
---      , ("sphere", sphere)
---      , ("torus", torus)
---      , ("box", box)
+        , ("sphere", sphere)
+        , ("torus", torus)
+        , ("box", box)
         ]
 
 parse :: (MonadState DrawMats m, MonadIO m) => Args -> [m ()]
@@ -49,6 +51,12 @@ parse (a:b:xs) =
             case lookup a wArgs of
                 Just c1 -> (c1 $ words b) : (parse xs)
                 Nothing -> parse (b:xs)
+
+push :: (MonadState DrawMats m) => m ()
+push = modify pushTransform
+
+pop :: (MonadState DrawMats m) => m ()
+pop = modify popTransform
 
 box :: (MonadState DrawMats m) => Args -> m ()
 box args = do
