@@ -58,19 +58,27 @@ push = modify pushTransform
 pop :: (MonadState DrawMats m) => m ()
 pop = modify popTransform
 
-box :: (MonadState DrawMats m) => Args -> m ()
+box :: (MonadIO m, MonadState DrawMats m) => Args -> m ()
 box args = do
     dm <- get
     let [cx, cy, cz, w, h, d] = map read args
         tris = S.box cx cy cz w h d
+    liftIO $ putStrLn $
+        "\nbox drawn w/ transform matrix: \n"
+        ++ (show $ getTransform dm)
+        ++ "\n"
     modify . modScreen $ S.drawTriangles red $
         map (S.trTriangle $ getTransform dm) tris
 
-sphere :: (MonadState DrawMats m) => Args -> m ()
+sphere :: (MonadIO m, MonadState DrawMats m) => Args -> m ()
 sphere args = do
     dm <- get
     let [cx, cy, cz, r] = map read args
         tris = S.sphere cx cy cz r
+    liftIO $ putStrLn $
+        "\nsphere drawn w/ transform matrix: \n"
+        ++ (show $ getTransform dm)
+        ++ "\n"
     modify . modScreen $ S.drawTriangles red $
         map (S.trTriangle $ getTransform dm) tris
     
@@ -153,7 +161,7 @@ line args = do
     let [x0, y0, z0, x1, y1, z1] = map read args
         ln = Line (T.pmult (getTransform dm) (Vect x0 y0 z0 1))
                   (T.pmult (getTransform dm) (Vect x1 y1 z1 1))
-    modify $ modScreen $ drawLine red (fmap round ln)
+    modify . modScreen $ drawLine red (fmap round ln)
 
 ident :: (MonadState DrawMats m) => m ()
 ident = modify . modTransform $ const T.ident
