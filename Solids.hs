@@ -24,7 +24,7 @@ trTriangle :: (Num a) => Transform a -> Triangle a -> Triangle a
 trTriangle t (Triangle (a, b, c)) = Triangle (pmult t a, pmult t b, pmult t c)
 
 sphere :: (Floating a, Enum a) => a -> a -> a -> a -> [Triangle a]
-sphere cx cy cz r = concat $ zipWith stitchLines arcs (rotate 1 arcs)
+sphere cx cy cz r = concat $ zipWith stitchLines (rotate 1 arcs) arcs
     where arcs = [[Vect (cx + r * cos thet) (cy + r * sin thet * cos phi)
                  (cz + r * sin thet * sin phi) 1
                     | thet <- [0, pi/12 .. pi]] |  phi <- [0, pi/6 .. 2*pi]]

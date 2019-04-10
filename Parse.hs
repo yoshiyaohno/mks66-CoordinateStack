@@ -59,27 +59,19 @@ push = modify pushTransform
 pop :: (MonadState DrawMats m) => m ()
 pop = modify popTransform
 
-box :: (MonadIO m, MonadState DrawMats m) => Args -> m ()
+box :: (MonadState DrawMats m) => Args -> m ()
 box args = do
     dm <- get
     let [cx, cy, cz, w, h, d] = map read args
         tris = S.box cx cy cz w h d
-    liftIO $ putStrLn $
-        "\nbox drawn w/ transform matrix: \n"
-        ++ (show $ getTransform dm)
-        ++ "\n"
     modify . modScreen $ S.drawTriangles red $
         map (S.trTriangle $ getTransform dm) tris
 
-sphere :: (MonadIO m, MonadState DrawMats m) => Args -> m ()
+sphere :: (MonadState DrawMats m) => Args -> m ()
 sphere args = do
     dm <- get
     let [cx, cy, cz, r] = map read args
         tris = S.sphere cx cy cz r
-    liftIO $ putStrLn $
-        "\nsphere drawn w/ transform matrix: \n"
-        ++ (show $ getTransform dm)
-        ++ "\n"
     modify . modScreen $ S.drawTriangles red $
         map (S.trTriangle $ getTransform dm) tris
     
