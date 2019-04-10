@@ -39,7 +39,7 @@ torus cx cy cz r0 r1 = concat $ zipWith stitchLines arcs (rotate 1 arcs)
 box :: (Floating a, Enum a) => a -> a -> a -> a -> a -> a -> [Triangle a]
 box cx cy cz w h d = let
     [p000, p001, p010, p011, p100, p101, p110, p111] = 
-        [Vect (cx + qx * w) (cy + qy * h) (cz + qz * d) 1
+        [Vect (cx + qx * w) (cy - qy * h) (cz - qz * d) 1
             | qx <- [0,1], qy <- [0,1], qz <- [0,1]]
                 in stitch4 p000 p010 p110 p100
                    ++ stitch4 p100 p110 p111 p101

@@ -40,15 +40,16 @@ wArgs = [ ("save", save)
 
 parse :: (MonadState DrawMats m, MonadIO m) => Args -> [m ()]
 parse []  = []
+parse ("":xs) = parse xs
 parse [a] =
-    case lookup a noArgs of
+    case lookup (head.words $ a) noArgs of
         Just c  -> [c]
         Nothing -> []
 parse (a:b:xs) =
-    case lookup a noArgs of
+    case lookup (head.words $ a) noArgs of
         Just c0 -> c0 : (parse (b:xs))
         Nothing -> 
-            case lookup a wArgs of
+            case lookup (head.words $ a) wArgs of
                 Just c1 -> (c1 $ words b) : (parse xs)
                 Nothing -> parse (b:xs)
 
@@ -167,20 +168,20 @@ ident :: (MonadState DrawMats m) => m ()
 ident = modify . modTransform $ const T.ident
 
 scale :: (MonadState DrawMats m) => Args -> m ()
-scale args = modify . modTransform $ (`mappend` T.scale x y z)
+scale args = modify . modTransform $ (mappend $ T.scale x y z)
     where [x, y, z] = map read args
 
 rote :: (MonadState DrawMats m) => Args -> m ()
-rote s = modify . modTransform $ (`mappend` roti s)
+rote s = modify . modTransform $ (mappend $ roti s)
     where roti args
-            | axis == "x"   = T.rotX theta
-            | axis == "y"   = T.rotY theta
-            | axis == "z"   = T.rotZ theta
+            | axis == "x"   = T.rotX (-theta)
+            | axis == "y"   = T.rotY (-theta)
+            | axis == "z"   = T.rotZ (-theta)
             where axis  = args !! 0
                   theta = read $ args !! 1
 
 move :: (MonadState DrawMats m) => Args -> m ()
-move args = modify . modTransform $ (`mappend` T.trans x y z)
+move args = modify . modTransform $ (mappend $ T.trans x y z)
     where [x, y, z] = map read args
 
 --clear :: (MonadState DrawMats m) => m ()
